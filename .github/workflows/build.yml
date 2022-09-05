@@ -1,0 +1,25 @@
+name: Build and Release
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps: 
+      - run: sudo apt update
+      - run: sudo apt install build-essential git subversion cmake libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev libegl-dev
+      - run: git --version
+      - run: mkdir ~/blender-git && cd blender-git && git clone https://git.blender.org/blender.git
+      - run: mkdir ~/blender-git/lib && cd ~/blender-git/lib
+      - run: svn checkout https://svn.blender.org/svnroot/bf-blender/trunk/lib/linux_centos7_x86_64
+      - run: cd ~/blender-git/blender
+      - run: make update && make
+     
+      - name: Create a Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "blender-git/build_linux/bin/*"
+          token: $ {{ secrets.BLEND }}
